@@ -3,6 +3,7 @@ package EDN
 import java.util.UUID
 import clojure.lang.Keyword
 import org.scalatest.FunSuite
+import clojure.lang.Symbol
 
 class ReaderTest extends FunSuite {
 
@@ -39,6 +40,9 @@ class ReaderTest extends FunSuite {
     expectResult(clojure.lang.Symbol.intern("a")) { Reader.readAll("a") }
     expectResult(clojure.lang.Symbol.intern("f")) { Reader.readAll("f") }
     expectResult(clojure.lang.Symbol.intern("foo/bar")) { Reader.readAll("foo/bar") }
+
+    expectResult(List(Keyword.intern("a"),Keyword.intern("b"),Keyword.intern("c"))) { Reader.readAll("(:a :b :c)") }
+    expectResult(List(Symbol.create("a"),Symbol.create("b"),Symbol.create("c"))) { Reader.readAll("(a b c)") }
   }
 
 
@@ -61,11 +65,13 @@ class ReaderTest extends FunSuite {
   test("#uuid") {
     val uuidStr = "f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
     expectResult(UUID.fromString(uuidStr)) { Reader.readAll("#uuid\"" + uuidStr + "\"") }
+    expectResult(List(UUID.fromString(uuidStr))) { Reader.readAll("(#uuid\"" + uuidStr + "\")") }
   }
 
   test("#inst") {
     val dateStr = "2012-01-01T01:23:45.000-00:00"
     expectResult(Instant.read(dateStr)) { Reader.readAll("#inst \"" + dateStr + "\"") }
+    expectResult(List(Instant.read(dateStr))) { Reader.readAll("(#inst \"" + dateStr + "\")") }
   }
 
   test("commas") {

@@ -16,12 +16,12 @@ object Reader extends JavaTokenParsers {
   val map: Parser[Map[Any, Any]] = "{" ~> rep(pair) <~ "}" ^^ (Map() ++ _)
   val vector: Parser[Vector[Any]] = "[" ~> rep(elem) <~ "]" ^^ (Vector() ++ _)
   val list: Parser[List[Any]] = "(" ~> rep(elem) <~ ")"
-  val keyword: Parser[Keyword] = ":" ~> """[^,#\"\{\}\[\]\s]+""".r ^^ (Keyword.intern(_))
-  val symbol: Parser[clojure.lang.Symbol] = """[a-zA-Z][^,#\"\{\}\[\]\s]*""".r ^^ (clojure.lang.Symbol.create(_))
+  val keyword: Parser[Keyword] = ":" ~> """[^,#\"\{\}\[\]\(\)\s]+""".r ^^ (Keyword.intern(_))
+  val symbol: Parser[clojure.lang.Symbol] = """[a-zA-Z][^,#\"\{\}\[\]\(\)\s]*""".r ^^ (clojure.lang.Symbol.create(_))
   lazy val pair: Parser[(Any, Any)] = elem ~ elem ^^ {
     case key ~ value => (key, value)
   }
-  lazy val tagElem: Parser[Any] = """#[^,#\"\{\}\[\]\s]+""".r ~ elem ^^ {
+  lazy val tagElem: Parser[Any] = """#[^,#\"\{\}\[\]\(\)\s]+""".r ~ elem ^^ {
     case "#uuid" ~ (value: String) => UUID.fromString(value)
     case "#inst" ~ (value: String) => Instant.read(value)
     case name ~ value => (name, value)
@@ -31,7 +31,7 @@ object Reader extends JavaTokenParsers {
   }
 
   val ednElem: Parser[Any] =  set | map | vector | list | keyword | tagElem | ratio |
-                              wholeNumber <~ not('.') ^^ (_.toLong) |
+                              wholeNumber <~ not('.') ^^ (_.toInt) |
                               floatingPointNumber     ^^ (_.toDouble) |
                               "nil"                   ^^ (_ => null)  |
                               "true"                  ^^ (_ => true)  |
