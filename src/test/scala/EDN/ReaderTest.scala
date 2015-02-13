@@ -1,6 +1,7 @@
 package EDN
 
 import java.util.UUID
+import clojure.lang.Keyword
 import org.scalatest.FunSuite
 
 class ReaderTest extends FunSuite {
@@ -29,17 +30,24 @@ class ReaderTest extends FunSuite {
   }
 
   test("keyword") {
-    expectResult(":a") { Reader.readAll(":a") }
-    expectResult("::a") { Reader.readAll("::a") }
-    expectResult(":foo/bar") { Reader.readAll(":foo/bar") }
+    expectResult(Keyword.intern("a")) { Reader.readAll(":a") }
+    expectResult(Keyword.intern(":a")) { Reader.readAll("::a") }
+    expectResult(Keyword.intern("foo/bar")) { Reader.readAll(":foo/bar") }
   }
+
+  test("symbols") {
+    expectResult(clojure.lang.Symbol.intern("a")) { Reader.readAll("a") }
+    expectResult(clojure.lang.Symbol.intern("f")) { Reader.readAll("f") }
+    expectResult(clojure.lang.Symbol.intern("foo/bar")) { Reader.readAll("foo/bar") }
+  }
+
 
   test("map") {
     expectResult(Map()) { Reader.readAll("{}") }
-    expectResult(Map(":a" -> 1)) { Reader.readAll("{:a 1}") }
-    expectResult(Map(":a" -> 1, ":b" -> 2)) { Reader.readAll("{:a 1 :b 2}") }
+    expectResult(Map(Keyword.intern("a") -> 1)) { Reader.readAll("{:a 1}") }
+    expectResult(Map(Keyword.intern("a") -> 1, Keyword.intern("b") -> 2)) { Reader.readAll("{:a 1 :b 2}") }
     expectResult(Map(Map() -> Map())) { Reader.readAll("{{} {}}") }
-    expectResult(Map(Map() -> Map(), Set() -> Vector(), List() -> ":a"))
+    expectResult(Map(Map() -> Map(), Set() -> Vector(), List() -> Keyword.intern("a")))
     { Reader.readAll("{{} {} #{} [] () :a}") }
   }
 
@@ -64,7 +72,7 @@ class ReaderTest extends FunSuite {
     expectResult(1) { Reader.readAll(",,,1") }
     // expectResult(1) { Reader.readAll("1,,,") }   // TODO FIX
     expectResult(Vector(1,2,3)) { Reader.readAll("[1,2,3]") }
-    expectResult(Map(":a" -> 1, ":b" -> 2)) { Reader.readAll("{:a 1, :b 2}") }
+    expectResult(Map(Keyword.intern("a") -> 1, Keyword.intern("b") -> 2)) { Reader.readAll("{:a 1, :b 2}") }
   }
 
   test("strings") {
@@ -81,6 +89,7 @@ class ReaderTest extends FunSuite {
   }
 
   test("numbers with N") {
-    expectResult(List(42, 1)) { Reader.readAll("(42N 1)") }
+    expectResult(List(42, 1)) { Reader.readAll("(42 1)") }
+    expectResult(List(42.5, 1)) { Reader.readAll("(42.5 1)") }
   }
 }

@@ -6,7 +6,10 @@ version := "0.1-SNAPSHOT"
 
 scalaVersion := "2.10.2"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+libraryDependencies ++= Seq(
+  "org.clojure" % "clojure" % "1.7.0-alpha5",
+  "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+)
 
 publishTo <<= version { (v: String) =>
   val nexus = "https://oss.sonatype.org/"
