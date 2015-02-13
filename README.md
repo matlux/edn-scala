@@ -27,6 +27,11 @@ res1: String = {[1] #{2}}
 
 Also see the [tests](https://github.com/martintrojer/edn-scala/blob/master/src/test/scala/EDN).
 
+## REPL
+
+The Reader can be tested via an interactive REPL. Just run the `EDN.MiniRepl` main.
+
+
 ## TODO
 
 * leading / trailing commas
